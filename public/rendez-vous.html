@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../assets/css/client.css">
+    <title>Liste des rendez-vous</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        function redirect(page) {
+            ipcRenderer.send('redirect', page);
+        }
+        function logout() {
+    // Supprimer le token du localStorage
+    localStorage.removeItem('token');
+    
+    // Rediriger vers index.html
+    window.location.href = 'index.html';
+}
+
+    </script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Aknyx</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('rendez-vous.html')">Rendez-vous</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('produits.html')">Produit</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('ajouter.categorie.html')">Ajouter catégorie</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('ajout.produit.html')">Ajouter produits</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('client.html')">Nos client</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('ajouter.rdv.html')">Ajouter disponibilité</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="logout()">Déconnexion</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <h1>Liste des rendez-vous</h1>
+    <table id="clientTable" class="table">
+        <thead>
+            <tr>
+                <th>Client</th>
+                <th>annee</th>
+                <th>mois</th>
+                <th>Heure</th>
+                <th>minute</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        const token = localStorage.getItem('token'); 
+
+        axios.get('http://localhost:5000/rendez-vous/electron', {
+            headers: {
+                Authorization: `Bearer ${token}` 
+            }
+        })
+            .then(async response => {
+                const rendezVous = response.data.rendezVousDisponibles;
+                console.log("aa", rendezVous);
+
+                const tableBody = document.querySelector('#clientTable tbody');
+
+                for (const rendezVousItem of rendezVous) {
+                    const row = document.createElement('tr');
+
+                    if (rendezVousItem.iduser) {
+                        // Si iduser n'est pas null, récupérer le nom
+                        try {
+                            const userResponse = await axios.get(`http://localhost:5000/users/find/${rendezVousItem.iduser}`, {
+                            headers: {
+                                Authorization: `Bearer ${token}`
+                            }
+                        });
+                            console.log(userResponse)
+                            const userName = userResponse.data.client.nom;
+                            row.innerHTML = `
+                                <td>${userName}</td>
+                                <td>${rendezVousItem.annee}</td>
+                                <td>${rendezVousItem.mois}</td>
+                                <td>${rendezVousItem.heure}</td>
+                                <td>${rendezVousItem.minute}</td>
+                            `;
+                        } catch (userError) {
+                            console.error(userError);
+                        }
+                    } else {
+                        // Si iduser est null, afficher "Disponible"
+                        row.innerHTML = `
+                            <td>Disponible</td>
+                            <td>${rendezVousItem.annee}</td>
+                            <td>${rendezVousItem.mois}</td>
+                            <td>${rendezVousItem.heure}</td>
+                            <td>${rendezVousItem.minute}</td>
+                        `;
+                    }
+
+                    tableBody.appendChild(row);
+                }
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    </script>
+</body>
+</html>

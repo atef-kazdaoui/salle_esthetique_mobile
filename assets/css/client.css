@@ -1,0 +1,80 @@
+/* client.css */
+
+/* Ajoutez des styles spécifiques au tableau */
+#clientTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+#clientTable th,
+#clientTable td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ccc;
+}
+
+#clientTable th {
+    background-color: #f2f2f2;
+}
+
+/* Utilisez des classes Bootstrap pour améliorer le style */
+h1 {
+    margin-bottom: 20px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+body{
+    background-image: url('../../assets/img/MicrosoftTeams-image.png');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+}
+/* client.css */
+
+/* client.css */
+
+/* Styliser la barre de navigation */
+.navbar {
+    padding: 10px;
+}
+
+.navbar-brand {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.navbar-nav .nav-link {
+    font-size: 18px;
+    margin-right: 10px;
+    color: #fff;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #ffc107;
+}

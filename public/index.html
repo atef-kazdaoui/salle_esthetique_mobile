@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../assets/css/client.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js"></script>
+    <script crossorigin src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Connexion</h1>
+
+        <!-- Ajout d'un élément pour afficher les messages -->
+        <div id="messageContainer" class="mb-3"></div>
+
+        <form id="loginForm">
+            <div class="mb-3">
+                <label for="email" class="form-label">Adresse e-mail :</label>
+                <input type="email" class="form-control" id="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Mot de passe :</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="submitLoginForm()">Connexion</button>
+        </form>
+    </div>
+
+    <script>
+        const apiUrl = 'http://localhost:5000/users/login';
+
+        const submitLoginForm = () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const data = {
+                adresse_email: email,
+                password: password,
+            };
+
+            axios.post(apiUrl, data)
+                .then(response => {
+                    if (response.data && response.data.token) {
+                        const token = response.data.token;
+                        console.log('Token:', token);
+
+                        // Décodez la partie en base64 du jeton
+                        const decodedToken = JSON.parse(atob(token.split('.')[1]));
+                        console.log('Decoded Token:', decodedToken);
+
+                        const role = decodedToken.role;
+                        console.log('Role:', role);
+
+                        // Stocker le token dans le localStorage
+                        localStorage.setItem('token', token);
+
+                        // Afficher un message de succès au lieu de l'alerte
+                        const messageContainer = document.getElementById('messageContainer');
+                        messageContainer.innerHTML = '<div class="alert alert-success" role="alert">Connexion réussie!</div>';
+
+                        // Gérer la réponse de l'API ici (redirection, enregistrement de token, etc.)
+                        if (role === 'responsable') {
+                            console.log("Redirection vers la page utilisateur");
+                            window.location.href = 'client.html';
+                        } else {
+                            console.log("Vous n'êtes pas un responsable");
+                            // Rediriger vers une autre page pour les autres rôles si nécessaire
+                        }
+                    } else {
+                        console.error('Structure de réponse invalide du serveur.');
+
+                        // Afficher un message d'erreur au lieu de l'alerte
+                        const messageContainer = document.getElementById('messageContainer');
+                        messageContainer.innerHTML = '<div class="alert alert-danger" role="alert">Erreur lors de la connexion.</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur de l\'API :', error.response.data);
+
+                    // Afficher un message d'erreur au lieu de l'alerte
+                    const messageContainer = document.getElementById('messageContainer');
+                    messageContainer.innerHTML = `<div class="alert alert-danger" role="alert">${error.response.data.msg}</div>`;
+
+                    // Gérer les erreurs de l'API ici
+                });
+        };
+    </script>
+</body>
+</html>

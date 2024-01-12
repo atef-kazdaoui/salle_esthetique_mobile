@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../assets/css/client.css">
+    <title>Client List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        function redirect(page) {
+            ipcRenderer.send('redirect', page);
+        }
+
+        function displayMessage(message, messageType) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `<div class="alert alert-${messageType}" role="alert">${message}</div>`;
+        }
+        function logout() {
+    // Supprimer le token du localStorage
+    localStorage.removeItem('token');
+    
+    // Rediriger vers index.html
+    window.location.href = 'index.html';
+}
+
+    </script>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">Aknyx</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" onclick="redirect('rendez-vous.html')">Rendez-vous</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="redirect('produits.html')">Produit</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="redirect('ajouter.categorie.html')">Ajouter catégorie</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="redirect('ajout.produit.html')">Ajouter produits</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="redirect('client.html')">Nos client</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="redirect('ajouter.rdv.html')">Ajouter disponibilité</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="logout()">Déconnexion</a>
+            </li>
+            
+            </ul>
+        </div>
+    </div>
+</nav>
+
+    <div id="messageContainer" class="mb-3"></div>
+
+    <div class="container mt-4">
+        <h1>Ajouter une catégorie</h1>
+
+        <form id="categoryForm" onsubmit="event.preventDefault(); addCategory();">
+            <div class="form-group">
+                <label for="categoryName">Nom de la catégorie</label>
+                <input type="text" class="form-control" id="categoryName" placeholder="Entrez le nom de la catégorie">
+            </div>
+            <button type="submit" class="btn btn-primary">Ajouter</button>
+        </form>
+    </div>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        function redirect(page) {
+            window.location.href = page;
+        }
+
+        function addCategory() {
+            const nom_categorie = document.getElementById('categoryName').value;
+            const token = localStorage.getItem('token');
+
+            axios.post('http://localhost:5000/categories/ajouter', { nom_categorie }, {
+                headers: {
+                    Authorization: `Bearer ${token}` // Include the token in the request headers
+                }
+            })
+                .then(response => {
+                    displayMessage(response.data.message, 'success');
+                })
+                .catch(error => {
+                    displayMessage(error.response.data.message, 'danger');
+                });
+        }
+    </script>
+</body>
+
+</html>

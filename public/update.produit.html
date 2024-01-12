@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../assets/css/client.css">
+    <title>Modification du Produit</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        // Récupérer le token depuis le localStorage
+        const token = localStorage.getItem('token');
+
+        function redirect(page) {
+            ipcRenderer.send('redirect', page);
+        }
+
+        function displayMessage(message, messageType) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `<div class="alert alert-${messageType}" role="alert">${message}</div>`;
+        }
+
+        // Récupérer l'idproduit depuis les paramètres de l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const idproduit = urlParams.get('idproduit');
+        console.log(idproduit);
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            const nom_produit = document.getElementById('nom').value;
+            const description_produit = document.getElementById('description').value;
+            const prix_produit = document.getElementById('prix').value;
+            const nombre_produit = document.getElementById('nombre').value;
+            const image = document.getElementById('image').files[0];
+            const categorieId = document.getElementById('categorieId').value;
+
+            const formData = new FormData();
+            formData.append('nom_produit', nom_produit);
+            formData.append('description_produit', description_produit);
+            formData.append('prix_produit', prix_produit);
+            formData.append('nombre_produit', nombre_produit);
+            formData.append('image', image);
+            formData.append('categorieId', categorieId);
+
+            try {
+                // Utiliser le token dans les en-têtes de la requête
+                const response = await axios.patch(`http://localhost:5000/produit/update/${idproduit}`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                console.log(response.data);
+                displayMessage(response.data.message, 'success');
+            } catch (error) {
+                console.error(error);
+                displayMessage(error.response.data, 'danger');
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const response = await axios.get('http://localhost:5000/categories/categories');
+                const categories = response.data.categorie;
+                console.log(categories);
+                const selectElement = document.getElementById('categorieId');
+
+                for (const categorie of categories) {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = categorie.idcategorie;
+                    optionElement.textContent = categorie.nom_categorie;
+                    selectElement.appendChild(optionElement);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories();
+            // Remplir le formulaire avec les données du produit
+            // (vous devez implémenter la logique pour récupérer les données du produit à partir de l'idproduit)
+            // Exemple : fetchProductData(idproduit);
+        });
+        function logout() {
+            // Supprimer le token du localStorage
+            localStorage.removeItem('token');
+            
+            // Rediriger vers index.html
+            window.location.href = 'index.html';
+        }
+    </script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Aknyx</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('rendez-vous.html')">Rendez-vous</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('produits.html')">Produit</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('ajouter.categorie.html')">Ajouter catégorie</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('ajout.produit.html')">Ajouter produits</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('client.html')">Nos client</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('ajouter.rdv.html')">Ajouter disponibilité</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="logout()">Déconnexion</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class='ajout_produit'>
+        <h1>Modification du produit</h1>
+    </div>
+
+    <div id="messageContainer"></div>
+
+    <form onSubmit="handleSubmit(event)" enctype="multipart/form-data" class="form-ajout">
+        <div class='container'>
+            <div class="form-group">
+                <label htmlFor="nom">Nom du produit :</label>
+                <input type="text" placeholder='Nom du produit' class="form-control" id="nom" />
+            </div>
+            <div class="form-group">
+                <label htmlFor="description">Description du produit:</label>
+                <textarea placeholder='Description du produit' class="form-control" id="description"></textarea>
+            </div>
+            <div class="form-group">
+                <label htmlFor="prix">Prix du produit:</label>
+                <input type="text" placeholder='Prix du produit' class="form-control" id="prix" />
+            </div>
+            <div class="form-group">
+                <label htmlFor="nombre">Nombre du produit:</label>
+                <input type="number" placeholder='Nombre du produit' class="form-control" id="nombre" />
+            </div>
+            <div class="mb-3">
+                <label htmlFor="image">Insérer l'image du produit:</label>
+                <input type="file" class="form-control" id="image" name='image' />
+            </div>
+            <div class="form-group">
+                <label htmlFor="categorieId">Catégorie:</label>
+                <select class="form-control" id="categorieId"></select>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Modifier produit
+            </button>
+        </div>
+    </form>
+
+</body>
+
+</html>

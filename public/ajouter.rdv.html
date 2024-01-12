@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../assets/css/client.css">
+    <title>Client List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        function redirect(page) {
+            ipcRenderer.send('redirect', page);
+        }
+
+        async function handleDateSubmit() {
+            const dateElement = document.getElementById('date');
+            const hourElement = document.getElementById('heure');
+            const minuteElement = document.getElementById('minute');
+           
+            const date = moment(dateElement.value, 'YYYY-MM-DD').format('YYYY-MM-DD');
+            const hour = Number(hourElement.value) + 1;
+            const minute =minuteElement.value;
+            const token = localStorage.getItem('token'); 
+
+            const date_disponible = `${date}`;
+            console.log(date_disponible);
+
+            try {
+                const response = await axios.post(
+                    'http://localhost:5000/rendez-vous/ajouter_electron',
+                    {
+                        date_disponible: date_disponible,
+                        heure_disponible: hour,
+                        minute_disponible: minute
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
+                console.log(response.data.message);
+
+                // Afficher un message de succès au lieu de l'alerte
+                const messageContainer = document.getElementById('messageContainer');
+                messageContainer.innerHTML = `<div class="alert alert-success" role="alert">${response.data.message}</div>`;
+            } catch (error) {
+                console.error(error);
+
+                // Afficher un message d'erreur au lieu de l'alerte
+                const messageContainer = document.getElementById('messageContainer');
+                messageContainer.innerHTML = `<div class="alert alert-danger" role="alert">${error.message}</div>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCategories);
+
+        function loadCategories() {
+            // Fonction pour charger les catégories si nécessaire
+        }
+        function logout() {
+    // Supprimer le token du localStorage
+    localStorage.removeItem('token');
+    
+    // Rediriger vers index.html
+    window.location.href = 'index.html';
+}
+
+    </script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Aknyx</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('rendez-vous.html')">Rendez-vous</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('produits.html')">Produit</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('ajouter.categorie.html')">Ajouter catégorie</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('ajout.produit.html')">Ajouter produits</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('client.html')">Nos client</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="redirect('ajouter.rdv.html')">Ajouter disponibilité </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="logout()">Déconnexion</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="messageContainer" class="mb-3"></div>
+
+    <div className='ajout_produit'>
+        <h1>Ajouter une disponibilité</h1>
+    </div>
+
+    <form onSubmit="handleSubmit(event)" className="form-ajout">
+        <div className="form-group">
+            <label htmlFor="date">Date disponible:</label>
+            <input type="date" placeholder='Date du produit' className="form-control" id="date" />
+        </div>
+        <div className="form-group">
+            <label htmlFor="heure">Heure disponible:</label>
+            <input type="number" placeholder='Heure du produit' className="form-control" id="heure" min="0" max="23" />
+        </div>
+        <div className="form-group">
+            <label htmlFor="minute">Minute disponible:</label>
+            <input type="number" placeholder='Minute du produit' className="form-control" id="minute" min="0" max="59" />
+        </div>
+
+        <button type="button" onclick="handleDateSubmit()" class="btn btn-primary">
+            Valider la date disponible
+        </button>
+    </form>
+</body>
+
+</html>
