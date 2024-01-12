@@ -89,13 +89,7 @@ export default function Navbar() {
             <Text style={styles.navbarTitle}>Déconnexion</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity
-          style={styles.navbarItem}
-          onPress={() => navigation.navigate('Panier')}
-        >
-          <Ionicons name="cart" size={24} color="black" style={styles.icon} />
-          <Text style={styles.navbarTitle}>Panier</Text>
-        </TouchableOpacity>
+       
       </View>
     </View>
   );

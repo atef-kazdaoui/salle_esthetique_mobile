@@ -7,7 +7,7 @@ import Home from './Home/Home';
 import Navbar from './navbar/Navbar';
 import Connexion from './Connexion/Connexion';
 import Savoir from './Savoirplus/savoir';
-import Panier from './Panier/Panier'
+
 const Stack = createStackNavigator();
 
 const MainStack = createStackNavigator();
@@ -21,7 +21,7 @@ const MainStackScreen = () => (
     <MainStack.Screen name="Inscription" component={Inscription} />
     <MainStack.Screen name="Connexion" component={Connexion} />
     <MainStack.Screen name="Savoirplus" component={Savoir} />
-    <MainStack.Screen name="Panier" component={Panier} />
+    
 
   </MainStack.Navigator>
 );

@@ -14,7 +14,7 @@ function ProductList({ navigation }) {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://162.19.25.151:5000/categories/categories');
+      const response = await fetch('http://localhost:5000/categories/categories');
       const data = await response.json();
 
       setCategories(data.categorie);
@@ -26,7 +26,7 @@ function ProductList({ navigation }) {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://162.19.25.151:5000/produit/find');
+      const response = await fetch('http://localhost:5000/produit/find');
       const data = await response.json();
       console.log(data);
       setProducts(data.produit || []);
@@ -37,7 +37,7 @@ function ProductList({ navigation }) {
 
   const fetchFilteredProducts = async (categoryId) => {
     try {
-      const response = await fetch(`http://162.19.25.151:5000/produit/filtre/${categoryId}`);
+      const response = await fetch(`http://localhost:5000/produit/filtre/${categoryId}`);
       const data = await response.json();
       console.log(data.client);
       setProducts(data.client);
@@ -88,7 +88,7 @@ function ProductList({ navigation }) {
         <View style={styles.productList}>
           {products.map((product) => (
             <View key={product.idproduit} style={styles.productItem}>
-              <Image source={{ uri: `http://162.19.25.151:5000/images/${product.image}` }} style={styles.productImage} />
+              <Image source={{ uri: `http://localhost:5000/images/${product.image}` }} style={styles.productImage} />
               <Text style={styles.productName}>{product.nom_produit}</Text>
               <Text style={styles.productPrice}>{product.prix_produit}</Text>
               <TouchableOpacity
